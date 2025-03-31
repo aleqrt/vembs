@@ -1,0 +1,100 @@
+import os
+import sys
+import numpy as np
+from pickle import load
+import joblib
+import tensorflow as tf
+import json
+
+# Add parent folder to module import path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname('__file__'), os.pardir)))
+
+# Import utility functions and model definition
+from utils import evaluate_models, plot_roc_curves_test, plot_boxplot, create_baselines
+from models import create_mlp
+
+# Set the seed for reproducibility
+seed = 42
+np.random.seed(seed)
+tf.random.set_seed(seed)
+
+# Specifies the tasks (metadata) used for CheXpert
+metas = ["gender", "age_decile", "race-bin", "race-cls", "disease"]
+
+for metadata in metas:
+    # Define folders based on CheXpert structure
+    root_dir = os.path.dirname(os.path.dirname('__file__'))
+    data_folder = os.path.join(root_dir, "data", "chexpert", "cxr-foundation", metadata)
+    figures_folder = os.path.join(root_dir, "fig", "chexpert", "cxr-foundation", f"predict-{metadata}")
+    models_folder = os.path.join(root_dir, "models", "chexpert", "cxr-foundation", metadata)
+
+    # Load train data (saved in pickle format)
+    print(f"Loading {metadata} train split data...")
+    train_set_path = os.path.join(data_folder, 'train_dataset_std.pkl')
+    with open(train_set_path, 'rb') as f:
+        X_train, y_train, train_all_ids = load(f)
+
+    print(f'{metadata} train set after processing - Max value:', X_train.max(), 'Min value:', X_train.min())
+    print(f'{metadata} train set after processing - shape:', X_train.shape)
+    print(f'{metadata} train set after processing - classes:', np.unique(y_train))
+
+    # Load test data (saved in pickle format)
+    print(f"Loading {metadata} test split data...")
+    test_set_path = os.path.join(data_folder, 'test_dataset_std.pkl')
+    with open(test_set_path, 'rb') as f:
+        X_test, y_test = load(f)
+
+    print(f'{metadata} test set after processing - Max value:', X_test.max(), 'Min value:', X_test.min())
+    print(f'{metadata} test set after processing - shape:', X_test.shape)
+    print(f'{metadata} test set after processing - classes:', np.unique(y_test))
+
+    # Load templates for each fold
+    print(f'Load {metadata} models...')
+    models = {
+        'logistic_regression': [],
+        'random_forest': [],
+        'xgboost': [],
+        'mlp': []
+    }
+    n_class = len(np.unique(y_test))
+    for model_name in models.keys():
+        for i in range(1, 11):
+            if model_name == 'mlp':
+                model = create_mlp(X_test.shape[1], n_class=n_class)
+                # Loads weights saved with .keras extension
+                model.load_weights(os.path.join(models_folder, f'{model_name}_fold_{i}.keras'))
+                models[model_name].append(model)
+            else:
+                model_path = os.path.join(models_folder, f'{model_name}_fold_{i}.pkl')
+                models[model_name].append(joblib.load(model_path))
+
+    # Collect the results
+    print(f'Compute metrics results for {metadata}...')
+    results = {name: {'accuracy': [], 'precision': [], 'recall': [], 'f1': [], 'roc': []} for name in models.keys()}
+
+    # Calculate evaluation metrics using the evaluate_models function (defined in utils)
+    for model_name in models:
+        test_accuracy, test_precision, test_recall, test_f1, test_roc = evaluate_models(
+            models, model_name, X_test, y_test, n_class, figures_folder
+        )
+        results[model_name]['accuracy'] = test_accuracy
+        results[model_name]['precision'] = test_precision
+        results[model_name]['recall'] = test_recall
+        results[model_name]['f1'] = test_f1
+        results[model_name]['roc'] = test_roc
+
+    # Calculate the performance of a random model (baseline)
+    baseline_results = create_baselines(y_train, y_test)
+    results.update(baseline_results)
+
+    # Save the results to a JSON file and (optionally) plot them
+    with open(os.path.join(figures_folder, 'result_test.json'), 'w') as fp:
+        json.dump(results, fp)
+
+    # If you want, you can also draw boxplots and ROC curves for the test.
+    # plot_boxplot(results, figures_folder, suffix='test')
+    # plot_roc_curves_test(models, X_test, y_test, figures_folder, suffix='test')
+
+    print(f"Completed testing for metadata: {metadata}")
+
+print("\nAll tests completed.")

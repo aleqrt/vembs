@@ -1,0 +1,10 @@
+pandas
+numpy
+matplotlib
+seaborn
+scikit-learn
+tensorflow
+shap
+xgboost
+open_clip_torch
+transformers
