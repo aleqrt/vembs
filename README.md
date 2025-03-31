@@ -1,4 +1,4 @@
-# Fairness AI
+# Hidden in Plain Sight: Vector Embeddings give away Demographic Information
 
 This repository investigates **Fairness in vector embeddings** derived from **chest X-ray images**.  
 We study fairness in embeddings generated from three different **CLIP-based models** for medical imaging:
@@ -55,12 +55,12 @@ Before training models, you must process the **MIMIC-CXR** dataset:
 
 1. Extract embeddings and demographic metadata:
     ```bash
-    python app/extraction_metadata_embedding_mimic_cxr.py
+    python src/extraction_metadata_embedding_mimic_cxr.py
     ```
 
 2. Apply a new encoding for **insurance data**:
     ```bash
-    python app/extraction_new_insurance.py
+    python src/extraction_new_insurance.py
     ```
 
 ---
@@ -71,34 +71,34 @@ This section covers training/testing models using the three embedding types.
 ### **CXR Foundation (MIMIC-CXR)**
 1. **Train models** on CXR Foundation embeddings:
     ```bash
-    python app/train_cxr-foundation_mimic.py
+    python src/train_cxr-foundation_mimic.py
     ```
 
 2. **Test models** on CXR Foundation embeddings:
     ```bash
-    python app/test_cxr-foundation_mimic.py
+    python src/test_cxr-foundation_mimic.py
     ```
 
 ### **MedCLIP (MIMIC-CXR)**
 1. **Train models** on MedCLIP embeddings:
     ```bash
-    python app/train_medclip_mimic.py
+    python src/train_medclip_mimic.py
     ```
 
 2. **Test models** on MedCLIP embeddings:
     ```bash
-    python app/test_medclip_mimic.py
+    python src/test_medclip_mimic.py
     ```
 
 ### **BiomedCLIP (MIMIC-CXR)**
 1. **Train models** on BiomedCLIP embeddings:
     ```bash
-    python app/train_biomedclip_mimic.py
+    python src/train_biomedclip_mimic.py
     ```
 
 2. **Test models** on BiomedCLIP embeddings:
     ```bash
-    python app/test_biomedclip_mimic.py
+    python src/test_biomedclip_mimic.py
     ```
 
 ---
@@ -109,40 +109,40 @@ The same analysis is conducted on the **CheXpert dataset**.
 ### **Preprocessing CheXpert Data**
 1. **Preprocess the CheXpert metadata**:
     ```bash
-    python app/preprocess_chexpert.ipynb
+    python src/preprocess_chexpert.ipynb
     ```
 
 ### **CXR Foundation (CheXpert)**
 1. **Train models** on CXR Foundation embeddings:
     ```bash
-    python app/train_cxr-foundation_chexpert.py
+    python src/train_cxr-foundation_chexpert.py
     ```
 
 2. **Test models** on CXR Foundation embeddings:
     ```bash
-    python app/test_cxr-foundation_chexpert.py
+    python src/test_cxr-foundation_chexpert.py
     ```
 
 ### **MedCLIP (CheXpert)**
 1. **Train models** on MedCLIP embeddings:
     ```bash
-    python app/train_medclip_chexpert.py
+    python src/train_medclip_chexpert.py
     ```
 
 2. **Test models** on MedCLIP embeddings:
     ```bash
-    python app/test_medclip_chexpert.py
+    python src/test_medclip_chexpert.py
     ```
 
 ### **BiomedCLIP (CheXpert)**
 1. **Train models** on BiomedCLIP embeddings:
     ```bash
-    python app/train_biomedclip_chexpert.py
+    python src/train_biomedclip_chexpert.py
     ```
 
 2. **Test models** on BiomedCLIP embeddings:
     ```bash
-    python app/test_biomedclip_chexpert.py
+    python src/test_biomedclip_chexpert.py
     ```
 
 ---
