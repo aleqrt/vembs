@@ -10,7 +10,7 @@ import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname('__file__'), os.pardir)))
 
 # Import utility functions
-from utils import evaluate_models, plot_roc_curves_test, plot_boxplot, create_baselines
+from utils import compute_confidence_interval, evaluate_models, plot_roc_curves_test, plot_boxplot, create_baselines
 from models import create_mlp
 
 # Set random seed for reproducibility
@@ -23,9 +23,9 @@ metas = ["race-bin", "race-cls", "gender", "age_decile", "insurance", "disease"]
 
 for metadata in metas:
     root_dir = os.path.dirname(os.path.dirname('__file__'))
-    data_folder = os.path.join(root_dir, "data", "mimic", "medclip-embedding", metadata)
-    figures_folder = os.path.join(root_dir, "fig", "mimic", "medclip-embedding", f"predict-{metadata}")
-    models_folder = os.path.join(root_dir, "models", "mimic", "medclip-embedding", metadata)
+    data_folder = os.path.join(root_dir, "data", "mimic", "medclip", metadata)
+    figures_folder = os.path.join(root_dir, "fig", "mimic", "medclip", f"predict-{metadata}")
+    models_folder = os.path.join(root_dir, "models", "mimic", "medclip", metadata)
 
     # Load train data
     print(f"Loading MedCLIP {metadata} train split data...")
@@ -82,15 +82,35 @@ for metadata in metas:
         results[model_name]['f1'] = test_f1
         results[model_name]['roc'] = test_roc
 
+    # Process raw results to get mean and confidence intervals
+    results_with_ci = {model_name: {} for model_name in models.keys()}
+    for model_name, metrics in results.items():
+        for metric_name, scores in metrics.items():
+            if scores: # Ensure scores list is not empty
+                mean_score, ci = compute_confidence_interval(scores)
+                results_with_ci[model_name][metric_name] = {
+                    'mean': mean_score,
+                    'confidence_interval': list(ci)
+                }
+            else:
+                results_with_ci[model_name][metric_name] = {
+                    'mean': None,
+                    'confidence_interval': [None, None]
+                }
+                
     # Compute random model performance
-    baseline_results = create_baselines(y_train, y_test)
+    #baseline_results = create_baselines(y_train, y_test)
 
     # Add random model results to existing results
-    results.update(baseline_results)
+    #results.update(baseline_results)
 
-    # Save and plot the results
-    with open(os.path.join(figures_folder, 'result_test.json'), 'w') as fp:
+    # Save results in JSON
+    with open(os.path.join(figures_folder, 'performance_test.json'), 'w') as fp:
         json.dump(results, fp)
+    
+    # Save results in JSON
+    with open(os.path.join(figures_folder, 'confidence_intervals_test.json'), 'w') as fp:
+        json.dump(results_with_ci, fp)
 
     # plot_boxplot(results, figures_folder, suffix='test')
     # plot_roc_curves_test(models, X_test, y_test,

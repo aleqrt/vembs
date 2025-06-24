@@ -352,7 +352,7 @@ for meta in metas:
         plot_loss_acc_cv(train_losses, val_losses, 'Loss', figures_folder)
 
     # Save CV results to a JSON file
-    cv_result_path = os.path.join(figures_folder, 'result_cv.json')
+    cv_result_path = os.path.join(figures_folder, 'performance_cv.json')
     with open(cv_result_path, 'w') as fp:
         json.dump(results, fp)
     print(f"Saved CV results to {cv_result_path}")

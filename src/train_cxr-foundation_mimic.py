@@ -281,7 +281,7 @@ for metadata in metas:
 
     # Print metrics for validation
     print('Plotting boxplot and ROC curves train...')
-    with open(os.path.join(figures_folder, 'result_cv.json'), 'w') as fp:
+    with open(os.path.join(figures_folder, 'performance_cv.json'), 'w') as fp:
         json.dump(results, fp)
 
     # Plot boxplots and AUC-ROC curves

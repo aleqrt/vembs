@@ -10,7 +10,7 @@ import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname('__file__'), os.pardir)))
 
 # Import utility functions and model definition
-from utils import evaluate_models, plot_roc_curves_test, plot_boxplot, create_baselines
+from utils import compute_confidence_interval, evaluate_models, plot_roc_curves_test, plot_boxplot, create_baselines
 from models import create_mlp
 
 # Set the seed for reproducibility
@@ -82,18 +82,39 @@ for metadata in metas:
         results[model_name]['recall'] = test_recall
         results[model_name]['f1'] = test_f1
         results[model_name]['roc'] = test_roc
+    
+    
+    # Process raw results to get mean and confidence intervals
+    results_with_ci = {model_name: {} for model_name in models.keys()}
+    for model_name, metrics in results.items():
+        for metric_name, scores in metrics.items():
+            if scores: # Ensure scores list is not empty
+                mean_score, ci = compute_confidence_interval(scores)
+                results_with_ci[model_name][metric_name] = {
+                    'mean': mean_score,
+                    'confidence_interval': list(ci)
+                }
+            else:
+                results_with_ci[model_name][metric_name] = {
+                    'mean': None,
+                    'confidence_interval': [None, None]
+                }
 
     # Calculate the performance of a random model (baseline)
-    baseline_results = create_baselines(y_train, y_test)
-    results.update(baseline_results)
+    #baseline_results = create_baselines(y_train, y_test)
+    #results.update(baseline_results)
 
-    # Save the results to a JSON file and (optionally) plot them
-    with open(os.path.join(figures_folder, 'result_test.json'), 'w') as fp:
+    # Save results in JSON
+    with open(os.path.join(figures_folder, 'performance_test.json'), 'w') as fp:
         json.dump(results, fp)
+    
+    # Save results in JSON
+    with open(os.path.join(figures_folder, 'confidence_intervals_test.json'), 'w') as fp:
+        json.dump(results_with_ci, fp)
 
     # If you want, you can also draw boxplots and ROC curves for the test.
-    # plot_boxplot(results, figures_folder, suffix='test')
-    # plot_roc_curves_test(models, X_test, y_test, figures_folder, suffix='test')
+    #plot_boxplot(results, figures_folder, suffix='test')
+    #plot_roc_curves_test(models, X_test, y_test, figures_folder, suffix='test')
 
     print(f"Completed testing for metadata: {metadata}")
 

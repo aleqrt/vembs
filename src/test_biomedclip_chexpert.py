@@ -10,7 +10,7 @@ import json
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname('__file__'), os.pardir)))
 
 # Import utility functions and model definition
-from utils import evaluate_models, plot_roc_curves_test, plot_boxplot, create_baselines
+from utils import compute_confidence_interval, evaluate_models, plot_roc_curves_test, plot_boxplot, create_baselines
 from models import create_mlp
 
 # Set the seed for reproducibility
@@ -83,13 +83,33 @@ for metadata in metas:
         results[model_name]['f1'] = test_f1
         results[model_name]['roc'] = test_roc
 
+    # Process raw results to get mean and confidence intervals
+    results_with_ci = {model_name: {} for model_name in models.keys()}
+    for model_name, metrics in results.items():
+        for metric_name, scores in metrics.items():
+            if scores: # Ensure scores list is not empty
+                mean_score, ci = compute_confidence_interval(scores)
+                results_with_ci[model_name][metric_name] = {
+                    'mean': mean_score,
+                    'confidence_interval': list(ci)
+                }
+            else:
+                results_with_ci[model_name][metric_name] = {
+                    'mean': None,
+                    'confidence_interval': [None, None]
+                }
+
     # Compute random model performance as a baseline
-    baseline_results = create_baselines(y_train, y_test)
-    results.update(baseline_results)
+    #baseline_results = create_baselines(y_train, y_test)
+    #results.update(baseline_results)
 
     # Save results in JSON
-    with open(os.path.join(figures_folder, 'result_test.json'), 'w') as fp:
+    with open(os.path.join(figures_folder, 'performance_test.json'), 'w') as fp:
         json.dump(results, fp)
+    
+    # Save results in JSON
+    with open(os.path.join(figures_folder, 'confidence_intervals_test.json'), 'w') as fp:
+        json.dump(results_with_ci, fp)
 
     # Optionally, plot boxplots and ROC curves
     # plot_boxplot(results, figures_folder, suffix='test')

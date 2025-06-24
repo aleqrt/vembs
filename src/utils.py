@@ -10,6 +10,7 @@ from io import TextIOWrapper
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pickle import load, dump
+from scipy.stats import t
 
 import sys
 
@@ -916,3 +917,30 @@ def plot_embeddings_pumap(embeddings, labels, title, save_path):
     plt.ylabel('Umap Component 2')
     plt.savefig(save_path)
     plt.close()
+
+
+def compute_confidence_interval(data, confidence=0.95):
+    """
+    Computes the mean and confidence interval for a given list of scores.
+
+    Args:
+        data (list or np.array): A list of numerical scores.
+        confidence (float): The desired confidence level.
+
+    Returns:
+        tuple: A tuple containing the mean, and the lower and upper bounds of the confidence interval.
+    """
+    n = len(data)
+    if n < 2:
+        return np.mean(data), (None, None) # Not enough data to compute CI
+        
+    mean = np.mean(data)
+    std_err = np.std(data, ddof=1) / np.sqrt(n)
+    
+    # Get the critical t-value
+    t_critical = t.ppf((1 + confidence) / 2, df=n - 1)
+    
+    lower_bound = mean - t_critical * std_err
+    upper_bound = mean + t_critical * std_err
+    
+    return mean, (lower_bound, upper_bound)

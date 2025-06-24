@@ -41,7 +41,7 @@ root_dir = os.path.dirname(os.path.dirname('__file__'))  # Root directory of the
 metas = ["gender", "race-bin", "race-cls", "age_decile", "insurance", "disease"]
 
 mimic_jpg_folder = os.path.join(root_dir, "data", "mimic", "mimic-jpg")
-biomedclip_embedding_folder = os.path.join(root_dir, "data", "mimic", "biomedclip-embedding")
+biomedclip_embedding_folder = os.path.join(root_dir, "data", "mimic", "biomedclip")
 biomedclip_embedding_path = os.path.join(biomedclip_embedding_folder, "embedding_from_biomedclip.pkl")
 train_test_idx_path_biomedclip = os.path.join(biomedclip_embedding_folder, "train_test_idx.pkl")
 
@@ -51,9 +51,9 @@ train_test_idx_path = os.path.join(extracted_embedding_folder, "train_test_idx.p
 os.makedirs(biomedclip_embedding_folder, exist_ok=True)
 
 for metadata in metas:
-    data_folder = os.path.join(root_dir, "data", "mimic", "biomedclip-embedding", metadata)
-    models_folder = os.path.join(root_dir, "models", "mimic", "biomedclip-embedding", metadata)
-    figures_folder = os.path.join(root_dir, "fig", "mimic", "biomedclip-embedding", f"predict-{metadata}")
+    data_folder = os.path.join(root_dir, "data", "mimic", "biomedclip", metadata)
+    models_folder = os.path.join(root_dir, "models", "mimic", "biomedclip", metadata)
+    figures_folder = os.path.join(root_dir, "fig", "mimic", "biomedclip", f"predict-{metadata}")
 
     os.makedirs(data_folder, exist_ok=True)
     os.makedirs(models_folder, exist_ok=True)
@@ -308,7 +308,7 @@ for metadata in metas:
 
     # Print metrics for validation
     print('Plotting boxplot and ROC curves train...')
-    with open(os.path.join(figures_folder, 'result_cv.json'), 'w') as fp:
+    with open(os.path.join(figures_folder, 'performance_cv.json'), 'w') as fp:
         json.dump(results, fp)
 
     # Plot boxplots and AUC-ROC curves
