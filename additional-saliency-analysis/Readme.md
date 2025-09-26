@@ -1,0 +1,7 @@
+## Experimental procedure:
+To investigate which embedding features contribute most to demographic prediction, we computed input gradients with respect to the MLP model output and ranked features by their average absolute gradient magnitude. We then perform iterative feature ablation, zeroing out the top-k% most informative features (for k = 10, 20, 50). At each step, the model predictive performance was reevaluated after retraining. ROC-AUC was used as the primary evaluation metric, as it provides a consistent baseline of 0.5 regardless of class imbalance or the number of classes.
+
+## Results:
+Table 2 shows results for feature removal analysis. Perturbing the top-k % most influential embedding dimensions (k=10, 20, 50) had minimal impact on model performance across all demographic prediction tasks. For instance, sex prediction ROC-AUC dropped by less than 0.01 in all embedding types, indicating high robustness. Similarly, age, ethnicity, and insurance type predictions showed negligible changes in ROC-AUC after perturbation. These results suggest that demographic information is not confined to a small subset of embedding dimensions but is instead redundantly distributed across the entire embedding space. 
+
+![Alt text](vembs/additional-saliency-analysis/imgs/table_2.png)
