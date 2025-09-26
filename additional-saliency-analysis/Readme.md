@@ -4,4 +4,4 @@ To investigate which embedding features contribute most to demographic predictio
 ## Results:
 Table 2 shows results for feature removal analysis. Perturbing the top-k % most influential embedding dimensions (k=10, 20, 50) had minimal impact on model performance across all demographic prediction tasks. For instance, sex prediction ROC-AUC dropped by less than 0.01 in all embedding types, indicating high robustness. Similarly, age, ethnicity, and insurance type predictions showed negligible changes in ROC-AUC after perturbation. These results suggest that demographic information is not confined to a small subset of embedding dimensions but is instead redundantly distributed across the entire embedding space. 
 
-![Alt text](vembs/additional-saliency-analysis/imgs/table_2.png)
+![Alt text](./imgs/table_2.png)
